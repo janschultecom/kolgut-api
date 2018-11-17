@@ -2,5 +2,5 @@ package Refined
 
 opts = ""
 
-pkgs = lightyear, contrib
+pkgs = lightyear, contrib, effects
 modules = Kolgut.Swagger
