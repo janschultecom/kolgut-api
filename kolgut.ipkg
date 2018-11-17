@@ -1,0 +1,6 @@
+package Refined
+
+opts = ""
+
+pkgs = lightyear, contrib
+modules = Kolgut.Swagger
