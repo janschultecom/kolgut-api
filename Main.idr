@@ -41,8 +41,8 @@ postPets : () -> IO (Response 201)
 postPets () = pure NoContent
 
 api : Api
-api = (Handle getPets, Handle postPets)
---api = (Handle getPets2, Handle postPets) -- WILL BLOW UP IN YOUR FACE 
+api = (Handle getPets, Handle postPets) -- WILL COMPILE
+--api = (Handle getPets2, Handle postPets) -- WILL NOT COMPILE 
 
 main : IO ()
 main = do
