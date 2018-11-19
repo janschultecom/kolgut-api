@@ -2,9 +2,12 @@ module Kolgut.Swagger
 
 import Kolgut.Json
 import Lightyear.StringFile
+import Lightyear.Strings 
 import Data.String
+import Debug.Error
 
-%access export
+%access public export
+%language ElabReflection
 
 rErr : String -> FileError -> String
 rErr s f = "Got file error: " ++ s
@@ -82,16 +85,79 @@ parseSwagger x = Left "Invalid swagger root"
 ListOfTypesToTuple : List Type -> Type
 ListOfTypesToTuple (t1 :: t2 :: __) = (t1, t2)
 
-loadSwagger : IO (Provider (List Type))
+json : String
+json = """{
+  "paths": {
+    "/pets": {
+      "get": {
+        "responses": {
+          "200": {
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "201": {
+          }
+        }
+      }
+    }
+
+  }
+}
+"""
+
+jsonValue : JsonValue
+jsonValue = JsonObject $ fromList [
+    ("paths", 
+      JsonObject $ fromList [
+        ("/pets",
+        JsonObject $ fromList [
+          ("get",
+          JsonObject $ fromList [
+            ("responses",
+            JsonObject $ fromList [
+              ("201",
+              JsonObject $ fromList [])
+            ])
+          ]),
+          ("post",
+          JsonObject $ fromList [
+            ("responses",
+            JsonObject $ fromList [
+              ("201",
+              JsonObject $ fromList [])
+            ])
+          ])
+        ])
+      ])
+  ]
+
+loadFile : String -> Either String (Type)
+loadFile content = do
+  --json <- (Lightyear.Strings.parse jsonToplevelValue) content
+  maybeTypes <- parseSwagger Kolgut.Swagger.jsonValue --json
+--  ty <- maybeToEither "No types" $ head' maybeTypes
+--  pure ty
+  pure $ ListOfTypesToTuple maybeTypes
+
+provideTypes : Either FileError String -> Provider (Type)
+provideTypes (Left err) = Providers.Error "Some file error"
+provideTypes (Right content) = case loadFile content of
+                                  Right ty => Provide ty
+                                  Left er => Providers.Error er
+
+printFileContents : Either FileError String -> IO ()
+printFileContents (Left err) = print "File error"
+printFileContents (Right content) = print content
+
+
+loadSwagger : IO (Provider Type)
 loadSwagger = do
             print "Loading file"
-            maybeJson <- run $ parseFile rErr pErr jsonToplevelValue "./petstore.json"
-            print "Parse Swagger"
-            mType <- pure $ do
-                  json <- maybeJson
-                  types <- parseSwagger json
-                  pure types
-
-            pure $ case mType of
-                 Left x => Error x
-                 Right t => Provide t
+            maybeFile <-  readFile "petstore_small.json"
+            printFileContents maybeFile
+            print "Parsing Json"
+            maybeFile <- pure $ Right Kolgut.Swagger.json 
+            print "Here"
+            pure $ provideTypes maybeFile
