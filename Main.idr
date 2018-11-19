@@ -32,14 +32,17 @@ route (h1, h2) m p = let
            in maybe (pure $ toStr NotFound) id (result1 <+> result2)
 
 getPets : () -> IO (Response 201)
---getPets () = pure $ Ok "Sooty\nSmoky\n" -- WILL BLOW UP IN YOUR FACE
 getPets () = pure NoContent 
+
+getPets2 : () -> IO (Response 200) 
+getPets2 () = pure $ Ok "Sooty\nSmoky\n" 
 
 postPets : () -> IO (Response 201)
 postPets () = pure NoContent
 
 api : Api
 api = (Handle getPets, Handle postPets)
+--api = (Handle getPets2, Handle postPets) -- WILL BLOW UP IN YOUR FACE 
 
 main : IO ()
 main = do
