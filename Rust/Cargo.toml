@@ -1,0 +1,12 @@
+[package]
+name = "kolgut-rust-backend"
+version = "0.1.0"
+authors = ["janschultecom"]
+
+[lib]
+name = "kolgut_rust_backend"
+crate-type = ["dylib", "rlib"]
+
+[dependencies]
+libc = { version = "0.2", default-features = false }
+hyper = "0.12"

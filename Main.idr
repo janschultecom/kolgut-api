@@ -2,6 +2,11 @@ module Main
 
 import Kolgut.Swagger
 
+%link C "Rust/target/debug/libkolgut_rust_backend.dylib"
+
+serve : String -> IO ()
+serve = foreign FFI_C "serve" (String -> IO ())
+
 %language TypeProviders
 
 %provide (Api : Type) with loadSwagger
@@ -45,9 +50,4 @@ api = (Handle getPets, Handle postPets) -- WILL COMPILE
 --api = (Handle getPets2, Handle postPets) -- WILL NOT COMPILE 
 
 main : IO ()
-main = do
-     l <- getLine
-     let [method, path] = words l
-     (headers, body) <- route api method path
-     putStrLn $ "Content-type: text/html\n" ++ headers ++ "\n";
-     putStrLn body
+main = serve "<h1>Idris &#128147; Rust</h1>"
