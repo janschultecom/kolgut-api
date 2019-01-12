@@ -83,7 +83,7 @@ parseSwagger x = Left "Invalid swagger root"
 ListOfTypesToTuple : List Type -> Type
 ListOfTypesToTuple (t1 :: t2 :: __) = (t1, t2)
 
-{-
+
 json : String
 json = """{
   "paths": {
@@ -130,7 +130,7 @@ jsonValue = JsonObject $ fromList [
         ])
       ])
   ]
--}
+
 
 loadFile : String -> Either String (Type)
 loadFile content = do
@@ -154,14 +154,30 @@ parseSwaggerJson : String -> IO (Either String JsonValue)
 parseSwaggerJson content = 
   do
     putStrLn "Starting to parse content:"
-    json <- pure $ parse jsonToplevelValue content 
-    putStrLn content
-    putStrLn $ "Finished parsing: " ++ (show (isRight json))
+    --let json = parse jsonToplevelValue content 
+    let jsonStr = "{\"paths\":null}\n" 
+    putStrLn jsonStr
+    putStrLn $ show $ unpack jsonStr
+    let json = Lightyear.Strings.parse jsonToplevelValue content --jsonStr
+    --let json = Right Kolgut.Swagger.jsonValue
+    putStrLn $ content
+    putStrLn $ show $ unpack content
+    putStrLn $ "Equal? " ++ show (jsonStr == content)
+    putStrLn $ "Length? " ++ (show $ length jsonStr) ++ " " ++ (show $ length content)
     putStrLn $ case json of
-                   Right v => show v
-                   Left e => "Error"
+                   Right v => "RIGHT"
+                   Left e => "LEFT"
     putStrLn "Finished show"
     pure json
+
+
+test : Either String Type
+test = Right Int --Left "Got Left"
+
+loadSwagger2 : IO (Provider Type)
+loadSwagger2 = case Kolgut.Swagger.test of
+                    Right ty => pure $ Provide ty
+                    Left err => pure $ Error err
 
 loadSwagger : IO (Provider Type)
 loadSwagger = do
@@ -177,18 +193,16 @@ loadSwagger = do
                      maybeContent <- parseSwaggerJson file
                      case maybeContent of
                           Right json =>
-                              pure $ Error "Bli"
-{-                            do
-                              putStrLn "Successfully parsed json"
-                              putStrLn $ show json 
+                              do
+                                putStrLn "Successfully parsed json"
+                                putStrLn $ show json 
 
-                              case parseSwagger json of
-                                 Right swagger =>
-                                   do 
-                                     putStrLn "Successfully parsed swagger"
-                                     pure $ Provide $ ListOfTypesToTuple swagger
-                                 Left error => pure $ Error error
-                                 -}                              
+                                case parseSwagger json of
+                                  Right swagger =>
+                                    do 
+                                      putStrLn "Successfully parsed swagger"
+                                      pure $ Provide $ ListOfTypesToTuple swagger
+                                  Left error => pure $ Error error
                           Left error => 
                             do 
                               putStrLn "Failed parsing json"

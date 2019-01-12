@@ -9,7 +9,7 @@ test = Lightyear.Strings.parse jsonToplevelValue
 
 main : IO ()
 main = do 
-  maybeFile <- readFile "petstore_small.json"
+  maybeFile <- readFile "petstore_test.json"
   case maybeFile of 
        Right content => 
          do 
